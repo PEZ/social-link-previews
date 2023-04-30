@@ -124,7 +124,7 @@ function settings_page() {
                     <input type="text" id="post_filter" placeholder="Filter posts">
                     <div style="margin-top: 10px; width: 100%; max-width: 1200px;">
                         <img id="selected_image" 
-                             src="<?php echo ($default_image_post_id ? get_the_post_thumbnail_url($default_image_post_id) : ''); ?>"
+                             src="<?php echo ($default_image_post_id ? image_url_for_post($default_image_post_id) : ''); ?>"
                              alt="Selected image" 
                              style="width: 100%; display: <?php echo ($default_image_post_id ? 'block' : 'none'); ?>;">
                     </div>
