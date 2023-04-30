@@ -11,13 +11,13 @@ License: MIT
 
 namespace SLPPlugin;
 
-$SHARE_IMAGE_WIDTH = 1200;
-$SHARE_IMAGE_HEIGHT = 628;
+const SHARE_IMAGE_WIDTH = 1200;
+const SHARE_IMAGE_HEIGHT = 628;
 
 // Add image sizes for social cards
 function add_image_sizes()
 {
-    add_image_size('share', $GLOBALS['SHARE_IMAGE_WIDTH'], $GLOBALS['SHARE_IMAGE_HEIGHT'], true);
+    add_image_size('slp-size', SHARE_IMAGE_WIDTH, SHARE_IMAGE_HEIGHT, true);
 }
 add_action('init', 'SLPPlugin\\add_image_sizes');
 
@@ -25,7 +25,7 @@ function image_url_for_post($post_id)
 {
     $image_id = get_post_thumbnail_id($post_id);
     if ($image_id) {
-        $image_src = wp_get_attachment_image_src($image_id, 'share');
+        $image_src = wp_get_attachment_image_src($image_id, 'slp-size');
         if ($image_src) {
             return $image_src[0];
         }
@@ -35,7 +35,7 @@ function image_url_for_post($post_id)
 
     if ($default_image_post_id) {
         $default_image_id = get_post_thumbnail_id($default_image_post_id);
-        $default_image_src = wp_get_attachment_image_src($default_image_id, 'share');
+        $default_image_src = wp_get_attachment_image_src($default_image_id, 'slp-size');
         if ($default_image_src) {
             return $default_image_src[0];
         }
@@ -74,9 +74,9 @@ function social_cards_meta_tags()
         echo '<meta property="og:description" content="' . esc_attr(excerpt_for_post($post)) . '"/>';
         echo '<meta property="og:url" content="' . esc_url(get_permalink($post->ID)) . '"/>';
         echo '<meta property="og:image" content="' . esc_url(image_url_for_post($post->ID)) . '"/>';
-        echo '<meta property="og:image:width" content="' . $GLOBALS['SHARE_IMAGE_WIDTH'] . '"/>';
+        echo '<meta property="og:image:width" content="' . SHARE_IMAGE_WIDTH . '"/>';
         echo '<meta property="og:alt" content="' . $image_alt . '"/>';
-        echo '<meta property="og:image:height" content="' . $GLOBALS['SHARE_IMAGE_HEIGHT'] . '"/>';
+        echo '<meta property="og:image:height" content="' . SHARE_IMAGE_HEIGHT . '"/>';
         echo '<meta property="og:type" content="article"/>';
 
         // Twitter
