@@ -21,28 +21,36 @@ function add_image_sizes()
 }
 add_action('init', 'SLPPlugin\\add_image_sizes');
 
-function image_url_for_post($post_id)
+function image_url_and_alt_for_post($post_id)
 {
+    $result = array('url' => null, 'alt' => '');
+
     $image_id = get_post_thumbnail_id($post_id);
     if ($image_id) {
         $image_src = wp_get_attachment_image_src($image_id, 'slp-size');
+        $image_alt = get_post_meta($image_id, '_wp_attachment_image_alt', true);
         if ($image_src) {
-            return $image_src[0];
+            $result['url'] = $image_src[0];
+            $result['alt'] = $image_alt;
+            return $result;
         }
     }
 
     $default_image_post_id = get_option('default_image_post_id');
-
     if ($default_image_post_id) {
         $default_image_id = get_post_thumbnail_id($default_image_post_id);
         $default_image_src = wp_get_attachment_image_src($default_image_id, 'slp-size');
+        $default_image_alt = get_post_meta($default_image_id, '_wp_attachment_image_alt', true);
         if ($default_image_src) {
-            return $default_image_src[0];
+            $result['url'] = $default_image_src[0];
+            $result['alt'] = $default_image_alt;
+            return $result;
         }
     }
 
-    return null;
+    return $result;
 }
+
 
 function first_500_characters($raw_content)
 {
@@ -64,16 +72,20 @@ function social_cards_meta_tags()
 {
     global $post;
     if ($post && is_singular()) {
-        $image_alt = 'Illustrating: ' . esc_attr(get_the_title($post->ID)) . '. (Probably a cute baby 😀)';
-
+        $post_title = esc_attr(get_the_title($post->ID));
+        $post_excerpt = esc_attr(excerpt_for_post($post));
+        $image_data = image_url_and_alt_for_post($post->ID);
+        $image_url = $image_data['url'];
+        $image_alt = $image_data['alt'] ?: 'Illustrating: ' . $post_title . '. (Probably a cute baby 😀)';
+        
         // General SEO
-        echo '<meta property="description" content="' . esc_attr(excerpt_for_post($post)) . '"/>';
+        echo '<meta property="description" content="' . $post_excerpt . '"/>';
         
         // Open Graph (Facebook, etcetera, also LinkedIn)
-        echo '<meta property="og:title" content="' . esc_attr(get_the_title($post->ID)) . '"/>';
-        echo '<meta property="og:description" content="' . esc_attr(excerpt_for_post($post)) . '"/>';
+        echo '<meta property="og:title" content="' . $post_title . '"/>';
+        echo '<meta property="og:description" content="' . $post_excerpt . '"/>';
         echo '<meta property="og:url" content="' . esc_url(get_permalink($post->ID)) . '"/>';
-        echo '<meta property="og:image" content="' . esc_url(image_url_for_post($post->ID)) . '"/>';
+        echo '<meta property="og:image" content="' . esc_url($image_url) . '"/>';
         echo '<meta property="og:image:width" content="' . SHARE_IMAGE_WIDTH . '"/>';
         echo '<meta property="og:alt" content="' . $image_alt . '"/>';
         echo '<meta property="og:image:height" content="' . SHARE_IMAGE_HEIGHT . '"/>';
@@ -82,9 +94,9 @@ function social_cards_meta_tags()
         // Twitter
         echo '<meta name="twitter:card" content="summary_large_image" />';
         echo '<meta name="twitter:creator" content="TCSparents" />';
-        echo '<meta name="twitter:title" content="' . esc_attr(get_the_title($post->ID)) . '"/>';
-        echo '<meta name="twitter:description" content="' . esc_attr(excerpt_for_post($post)) . '"/>';
-        echo '<meta name="twitter:image" content="' . esc_url(image_url_for_post($post->ID)) . '"/>';
+        echo '<meta name="twitter:title" content="' . $post_title . '"/>';
+        echo '<meta name="twitter:description" content="' . $post_excerpt . '"/>';
+        echo '<meta name="twitter:image" content="' . esc_url($image_url) . '"/>';
         echo '<meta name="twitter:image:alt" content="' . $image_alt . '"/>';
     }
 }
