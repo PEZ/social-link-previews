@@ -21,6 +21,7 @@ function add_image_sizes()
 }
 add_action('init', 'SLPPlugin\\add_image_sizes');
 
+
 function image_url_and_alt_for_post($post_id)
 {
     $result = array('url' => null, 'alt' => '');
@@ -50,7 +51,6 @@ function image_url_and_alt_for_post($post_id)
 
     return $result;
 }
-
 
 function first_500_characters($raw_content)
 {
@@ -124,6 +124,17 @@ function settings()
 
 add_action('admin_init', 'SLPPlugin\\settings');
 
+function original_image_url_for_post($post_id)
+{
+    $image_id = get_post_thumbnail_id($post_id);
+    $image_src = wp_get_attachment_image_src($image_id, 'slp-size');
+    if ($image_src) {
+        return $image_src[0];
+    } else {
+        return '';
+    }
+}
+
 function settings_page() {
     ?>
     <div class="wrap">
@@ -150,7 +161,7 @@ function settings_page() {
                     <input type="text" id="post_filter" placeholder="Filter posts">
                     <div style="margin-top: 10px; width: 100%; max-width: 1200px;">
                         <img id="selected_image" 
-                             src="<?php echo ($default_image_post_id ? image_url_for_post($default_image_post_id) : ''); ?>"
+                             src="<?php echo ($default_image_post_id ? original_image_url_for_post($default_image_post_id) : ''); ?>"
                              alt="Selected image" 
                              style="width: 100%; display: <?php echo ($default_image_post_id ? 'block' : 'none'); ?>;">
                     </div>
@@ -209,7 +220,7 @@ function settings_page() {
 function share_image_url_callback() {
     $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
     if ($post_id > 0) {
-        $thumbnail_url = image_url_for_post($post_id);
+        $thumbnail_url = original_image_url_for_post($post_id);
         if ($thumbnail_url) {
             echo $thumbnail_url;
         } else {
